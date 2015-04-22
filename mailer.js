@@ -1,16 +1,16 @@
 var nodemailer = require('nodemailer');
 var smtpTransport = require('nodemailer-smtp-transport');
 
-var to = ["jonnysamps@gmail.com"];
-var from = "jonnysamps@gmail.com";
+var to = ["someemail@somedomain.com"];
+var from = "someemail@somedomain.com";
 
 module.exports = {
     sendAlert: function(occupancy){
 	var transport = nodemailer.createTransport(smtpTransport({
 	    service: 'gmail',
 	    auth: {
-		user: "jonnysamps",
-		pass: "Helloworld24"
+		user: "username",
+		pass: "password"
 	    }
 	}));
 	
