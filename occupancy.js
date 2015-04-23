@@ -1,29 +1,6 @@
 require('./util');
 var ir = require('./ir');
 
-var occupancy_timeout = process.env.OCCUPANCY_TIMEOUT || 20000;
-
-
-/**
- * DEPRECATED... old algorithm... wasn't good.
- */
-var timeoutHandle = null;
-function irChanged(state){
-    // If we have started a timer then cancel it because the state has changed
-    if(timeoutHandle){
-	clearTimeout(timeoutHandle);
-	timeoutHandle = null;
-    }
-
-    // if the IR state is different than the current occupied state then 
-    // evaluate if we should change the occupied state
-    if(state !== occupied){
-	timeoutHandle = setTimeout(function(){
-	    toggleOccupancy();
-	}, occupancy_timeout);
-    }
-}
-
 var occupied = false;
 function setOccupied(value){
     if(occupied !== value){
@@ -38,23 +15,21 @@ function alertListeners(){
 	listeners[i](occupied);
     }
 }
+
+var ov = 1;
+var uv = -.174;
 var running = false;
-var thresholds = {occupied: .2,
+var thresholds = {occupied: 2.5,
 		  unoccupied: 0};
 var pollTime = 1000;
 var windowSize = 30; // 
-var slidingWindow = [].fill(false, 0, windowSize-1);
+var slidingWindow = [].fill(false, 0, windowSize);
 var windowPosition = 0;
 function pollIR(){
-    var irState = ir.status();
-    slidingWindow[windowPosition] = irState;
+    var length = slidingWindow.unshift(ir.status());
+    slidingWindow.pop();
 
-    var count = 0.0;
-    slidingWindow.map(function(value){
-	count += value?1:0;
-    });
-
-    var movementRatio = count / windowSize;
+    var movementRatio = getMovementRatio();
     console.log("Movement Ratio: "+movementRatio);
 
     /**
@@ -81,6 +56,27 @@ function isUnoccupied(movementRatio){
     return movementRatio <= thresholds.unoccupied;
 }
 
+function weightedValue(index, value){
+    return weight(index)*(value?ov:uv); 
+}
+
+function getMovementRatio(){
+    var movementRatio =0;
+    for(var i =0; i < windowSize; i++){
+        movementRatio += weightedValue(i, slidingWindow[i]);
+    }
+    
+    console.log("Movement Ratio: "+movementRatio);
+    return movementRatio;
+}
+
+/**
+ * Weight function to calculate the weight for each index
+ */
+function weight(index){
+    return Math.pow((1/(index+1)),(2.0/3.0));
+}
+
 	    
 
 var listeners = [];
@@ -101,3 +97,36 @@ module.exports = {
 	return occupied;
     }
 }
+
+function runTests(){
+    console.log("All Movement");
+    slidingWindow.fill(true,0,windowSize);
+    getMovementRatio();
+    
+    console.log("No movement");
+    slidingWindow.fill(false,0,windowSize);
+    getMovementRatio();
+    
+    console.log("Alternating");
+    for(var i = 0; i < windowSize; i++)
+	slidingWindow[i] = i%2==0;
+    getMovementRatio();
+    
+    console.log("Alternating uv:-.5");
+    uv = -.174
+    for(var i = 0; i < windowSize; i++)
+	slidingWindow[i] = i%2==0;
+    getMovementRatio();
+    
+    console.log("First 2/3 unoccupied");
+    for(var i = 0; i < windowSize; i++)
+	slidingWindow[i] = i > windowSize*(2.0/3.0);
+    getMovementRatio();
+    
+    console.log("first slot occupied");
+    slidingWindow.fill(false,0, windowSize);
+    slidingWindow.fill(true,0,10);
+    getMovementRatio();
+}
+
+//runTests();

@@ -4,7 +4,7 @@
 
 Array.prototype.fill = function(value, start, end){
     for(var i = start; i < end; i++){
-	this[i] = value
+	this[i] = value;
     }
     return this;
 }
