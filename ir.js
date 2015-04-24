@@ -1,11 +1,12 @@
-gpio = require('rpi-gpio');
+var gpio = require('rpi-gpio');
+var logger = require('./logger').console;
 
 var pin = 11;
 
 function waitToSettle(callback){
     gpio.read(pin, function(err, result){
 	if(err){
-	    console.log(err);
+	    logger.info(err);
 	    process.exit(1);
 	}
 
@@ -49,10 +50,10 @@ module.exports = {
 	running = true;
 	gpio.setup(pin, gpio.DIR_IN, function(err) {
 	    if(err){
-		console.error(err);
+		logger.error(err);
 		process.exit(1);
 	    }
-	    console.log("Pin setup. Waiting for the PIR to settle ....");
+	    logger.info("Pin setup. Waiting for the PIR to settle ....");
 	    waitToSettle(pollPIR);
 	});
     },

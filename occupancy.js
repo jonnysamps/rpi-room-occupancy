@@ -1,11 +1,14 @@
 require('./util');
 var ir = require('./ir');
+var logger = require('./logger');
+var winston = logger.console;
+var history = logger.history;
 
 var occupied = false;
 function setOccupied(value){
     if(occupied !== value){
 	occupied = value;
-	console.log("**** Occupancy Changed: "+occupied);
+	winston.info("Occupancy Changed: "+occupied);
 	alertListeners();
     }
 }
@@ -20,7 +23,7 @@ var ov = 1;
 var uv = -.174;
 var running = false;
 var thresholds = {occupied: 2.5,
-		  unoccupied: 0};
+		  unoccupied: -.8};
 var pollTime = 1000;
 var windowSize = 30; // 
 var slidingWindow = [].fill(false, 0, windowSize);
@@ -30,7 +33,6 @@ function pollIR(){
     slidingWindow.pop();
 
     var movementRatio = getMovementRatio();
-    console.log("Movement Ratio: "+movementRatio);
 
     /**
      * This deserves some explanation: if we cross the occupied threshold then we'll set occupied to true
@@ -65,8 +67,7 @@ function getMovementRatio(){
     for(var i =0; i < windowSize; i++){
         movementRatio += weightedValue(i, slidingWindow[i]);
     }
-    
-    console.log("Movement Ratio: "+movementRatio);
+    history.info(movementRatio);
     return movementRatio;
 }
 

@@ -1,3 +1,4 @@
+var logger = require('./logger').console;
 var https = require('https');
 var service = module.exports = {
     sendAlert: function(occupied){
@@ -18,15 +19,16 @@ var service = module.exports = {
 	    }
 	};
 	
+	logger.debug("Slack request: "+postData);
 	var req = https.request(options, function(res) {
 	    res.setEncoding('utf8');
 	    res.on('data', function (chunk) {
-		console.log('BODY: ' + chunk);
+		logger.debug('Slack resposne: ' + chunk);
 	    });
 	});
 	
 	req.on('error', function(e) {
-	    console.log('problem with request: ' + e.message);
+	    logger.error('problem with request: ' + e.message);
 	});
 	
 	// write data to request body
