@@ -5,7 +5,7 @@ var service = module.exports = {
 	var postData = JSON.stringify({
 	    text: "Ping Pong Table: *"+(occupied?'':'un')+"occupied*",
 	    username: "Hall Monitor Bot",
-	    icon_emoji: occupied?":pingpong:":":no_entry:"
+	    icon_emoji: ":pingpong:"
 	});
 	
 	var options = {

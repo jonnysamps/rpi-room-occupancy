@@ -22,7 +22,7 @@ function alertListeners(){
 var ov = 1;
 var uv = -.174;
 var running = false;
-var thresholds = {occupied: 2.5,
+var thresholds = {occupied: 4.5,
 		  unoccupied: -.8};
 var pollTime = 1000;
 var windowSize = 30; // 
