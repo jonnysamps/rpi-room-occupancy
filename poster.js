@@ -3,9 +3,10 @@ var https = require('https');
 var service = module.exports = {
     sendAlert: function(occupied){
 	var postData = JSON.stringify({
-	    text: "Ping Pong Table: *"+(occupied?'':'un')+"occupied*",
-	    username: "Hall Monitor Bot",
-	    icon_emoji: ":pingpong:"
+	    text: (occupied?':red_circle:':':sparkle:')+" *"+(occupied?'':'un')+"occupied*",
+	    username: "Ping Pong Room",
+	    icon_emoji: ":pingpong:",
+	    channel: "#g5_pingpong",
 	});
 	
 	var options = {
